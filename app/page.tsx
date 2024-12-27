@@ -8,7 +8,6 @@ const Home: React.FC = () => {
   const [filter, setFilter] = useState<"All" | "Completed" | "Pending">("All");
   const [taskInput, setTaskInput] = useState<string>("");
 
-  // Load tasks from localStorage when the component mounts
   useEffect(() => {
     const savedTasks = localStorage.getItem("tasks");
     if (savedTasks) {
@@ -16,7 +15,6 @@ const Home: React.FC = () => {
     }
   }, []);
 
-  // Save tasks to localStorage whenever tasks are updated
   useEffect(() => {
     if (tasks.length > 0) {
       localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -40,7 +38,14 @@ const Home: React.FC = () => {
   };
 
   const deleteTask = (id: number) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+
+    if (updatedTasks.length === 0) {
+      localStorage.removeItem("tasks");
+    } else {
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    }
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -51,7 +56,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="bg-gradient-custom min-h-screen flex flex-col items-center">
-      <h1 className="text-5xl font-raleway my-10">Task Tracker</h1>
+      <h1 className="text-5xl font-raleway my-10">Task Manager</h1>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -81,8 +86,8 @@ const Home: React.FC = () => {
             key={status}
             onClick={() => setFilter(status as "All" | "Completed" | "Pending")}
             className={`px-6 py-3 font-quickSand relative ${filter === status
-                ? "text-white"
-                : "text-gradient-custom"
+              ? "text-white"
+              : "text-gradient-custom"
               }`}
           >
             {status}
