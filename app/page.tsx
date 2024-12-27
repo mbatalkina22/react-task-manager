@@ -1,101 +1,132 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import { Task } from "../types/task";
+
+const Home: React.FC = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState<"All" | "Completed" | "Pending">("All");
+  const [taskInput, setTaskInput] = useState<string>("");
+
+  // Load tasks from localStorage when the component mounts
+  useEffect(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks));
+    }
+  }, []);
+
+  // Save tasks to localStorage whenever tasks are updated
+  useEffect(() => {
+    if (tasks.length > 0) {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  }, [tasks]);
+
+  const addTask = () => {
+    if (taskInput.trim()) {
+      const newTask = { id: Date.now(), name: taskInput, completed: false };
+      setTasks((prev) => [...prev, newTask]);
+      setTaskInput("");
+    }
+  };
+
+  const toggleTask = (id: number) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const deleteTask = (id: number) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+  };
+
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "Completed") return task.completed;
+    if (filter === "Pending") return !task.completed;
+    return true;
+  });
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <div className="bg-gradient-custom min-h-screen flex flex-col items-center">
+      <h1 className="text-5xl font-raleway my-10">Task Tracker</h1>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addTask();
+        }}
+        className="flex gap-2 mb-5"
+      >
+        <input
+          type="text"
+          value={taskInput}
+          onChange={(e) => setTaskInput(e.target.value)}
+          placeholder="Add a new task"
+          className="border-none rounded-full shadow-md px-3 py-2 w-96 font-quickSand text-black focus:outline-none hover:scale-105"
+          required
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+        <button
+          type="submit"
+          className="bg-white border-2 border-transparent text-gradient-mid hover:bg-transparent hover:border-white hover:text-white py-2 px-11 mx-2 shadow-lg rounded-full transition-all duration-500 transform hover:scale-105"
+        >
+          ADD TASK
+        </button>
+      </form>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="flex gap-4 mb-6">
+        {["All", "Completed", "Pending"].map((status) => (
+          <button
+            key={status}
+            onClick={() => setFilter(status as "All" | "Completed" | "Pending")}
+            className={`px-6 py-3 font-quickSand relative ${filter === status
+                ? "text-white"
+                : "text-gradient-custom"
+              }`}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            {status}
+            {filter === status && (
+              <span className="absolute bottom-0 left-0 w-full h-[4px] bg-white" />
+            )}
+          </button>
+        ))}
+      </div>
+
+      <div className="w-full max-w-lg flex-1 overflow-y-auto">
+        <ul>
+          {filteredTasks.map((task) => (
+            <li
+              key={task.id}
+              className="flex justify-between items-center bg-white p-4 rounded-lg shadow-xl mb-3"
+            >
+              <div className="flex-1 min-w-0">
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => toggleTask(task.id)}
+                  className="mr-3"
+                />
+                <span
+                  className={`font-quickSand text-black ${task.completed ? "line-through text-gray-500" : ""} break-words w-full`}
+                >
+                  {task.name}
+                </span>
+              </div>
+              <button
+                onClick={() => deleteTask(task.id)}
+                className="pl-6 text-red-500 transition duration-300 transform hover:scale-110"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
-}
+};
+
+export default Home;
