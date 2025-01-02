@@ -1,4 +1,4 @@
-Simple Task Manager
+## Simple Task Manager
 
 This is a Nuxt.js project, designed as a simple task manager 
 
