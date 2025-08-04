@@ -1,58 +1,38 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { Task } from "../types/task";
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { addTask, toggleTask, deleteTask, setFilter } from "../store/taskSlice";
+import { selectFilteredTasks, selectFilter } from "../store/selectors";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const Home: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [filter, setFilter] = useState<"All" | "Completed" | "Pending">("All");
+  const dispatch = useAppDispatch();
+  const filteredTasks = useAppSelector(selectFilteredTasks);
+  const filter = useAppSelector(selectFilter);
   const [taskInput, setTaskInput] = useState<string>("");
 
-  useEffect(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
-    }
-  }, []);
+  // Initialize localStorage integration
+  useLocalStorage();
 
-  useEffect(() => {
-    if (tasks.length > 0) {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    }
-  }, [tasks]);
-
-  const addTask = () => {
+  const handleAddTask = () => {
     if (taskInput.trim()) {
-      const newTask = { id: Date.now(), name: taskInput, completed: false };
-      setTasks((prev) => [...prev, newTask]);
+      dispatch(addTask(taskInput));
       setTaskInput("");
     }
   };
 
-  const toggleTask = (id: number) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const handleToggleTask = (id: number) => {
+    dispatch(toggleTask(id));
   };
 
-  const deleteTask = (id: number) => {
-    const updatedTasks = tasks.filter((task) => task.id !== id);
-    setTasks(updatedTasks);
-
-    if (updatedTasks.length === 0) {
-      localStorage.removeItem("tasks");
-    } else {
-      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    }
+  const handleDeleteTask = (id: number) => {
+    dispatch(deleteTask(id));
   };
 
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === "Completed") return task.completed;
-    if (filter === "Pending") return !task.completed;
-    return true;
-  });
+  const handleSetFilter = (newFilter: "All" | "Completed" | "Pending") => {
+    dispatch(setFilter(newFilter));
+  };
 
   return (
     <div className="bg-gradient-custom min-h-screen flex flex-col items-center">
@@ -60,7 +40,7 @@ const Home: React.FC = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          addTask();
+          handleAddTask();
         }}
         className="flex gap-2 mb-5"
       >
@@ -84,7 +64,7 @@ const Home: React.FC = () => {
         {["All", "Completed", "Pending"].map((status) => (
           <button
             key={status}
-            onClick={() => setFilter(status as "All" | "Completed" | "Pending")}
+            onClick={() => handleSetFilter(status as "All" | "Completed" | "Pending")}
             className={`px-6 py-3 font-quickSand relative ${filter === status
               ? "text-white"
               : "text-gradient-custom"
@@ -109,7 +89,7 @@ const Home: React.FC = () => {
                 <input
                   type="checkbox"
                   checked={task.completed}
-                  onChange={() => toggleTask(task.id)}
+                  onChange={() => handleToggleTask(task.id)}
                   className="mr-3"
                 />
                 <span
@@ -119,7 +99,7 @@ const Home: React.FC = () => {
                 </span>
               </div>
               <button
-                onClick={() => deleteTask(task.id)}
+                onClick={() => handleDeleteTask(task.id)}
                 className="pl-6 text-red-500 transition duration-300 transform hover:scale-110"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">

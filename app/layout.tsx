@@ -1,5 +1,9 @@
+'use client';
+
 import "./globals.css"
 import { Raleway, Quicksand } from 'next/font/google';
+import { Provider } from 'react-redux';
+import { store } from '../store/store';
 
 
 const raleway = Raleway({
@@ -21,7 +25,11 @@ export default function RootLayout({
 }) {
   return (
     <html  lang="en" data-mode="light" className={`${raleway.className} ${quicksand.className}`}>
-      <body>{children}</body>
+      <body>
+        <Provider store={store}>
+          {children}
+        </Provider>
+      </body>
     </html>
   );
 }

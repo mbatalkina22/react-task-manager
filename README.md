@@ -1,6 +1,6 @@
 ## Task Manager
 
-This is a Nuxt.js project, designed as a simple task manager 
+This is a Next.js project with Redux Toolkit integration, designed as a simple task manager 
 
 ## Features 
 
@@ -8,6 +8,16 @@ This is a Nuxt.js project, designed as a simple task manager
 ◦ Complete tasks: Mark tasks as completed.  
 ◦ Delete tasks: Remove tasks that are no longer needed.  
 ◦ Filter tasks: Filter tasks based on their completion status.  
+◦ State Management: Powered by Redux Toolkit for predictable state management.
+◦ Local Storage: Tasks are automatically saved to and loaded from localStorage.
+
+## Tech Stack
+
+- **Next.js 15** - React framework with App Router
+- **Redux Toolkit** - State management
+- **React Redux** - React bindings for Redux
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling  
 
 
 ## Getting Started
@@ -15,9 +25,7 @@ This is a Nuxt.js project, designed as a simple task manager
 First, run the development server:
 
 ```bash
-npm run dev  
-# or  
-yarn dev  
+npm run dev   
 ```
 ## Deployed
 
